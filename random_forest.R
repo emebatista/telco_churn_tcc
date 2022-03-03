@@ -39,8 +39,6 @@ for(i in categoricas) {
   telco[,as.numeric(i)-1] <- as.factor(telco[,as.numeric(i)-1])
 }
 
-nrow(telco)
-
 # usando algoritmo de Random Forest para base TElco
 set.seed(123)
 # Gera 80% de 1´s e 20% de 2´s para separar as amostras
@@ -64,14 +62,12 @@ teste <- telco[n==2,]
 set.seed(123)
 
 # Rodar o algoritmo
-treino_rf <- randomForest::randomForest(
+treino_random_forest <- randomForest::randomForest(
   Churn ~ ., 
   data = treino, 
   ntree = 50,
   mtry = 3, 
   importance = T)
-
-
 
 avalia <- function(modelo, nome_modelo="modelo"){
   # Base de treino
@@ -120,8 +116,18 @@ avalia <- function(modelo, nome_modelo="modelo"){
   print(tcs_treino)
   print('Avaliação base de teste')
   print(tcs_teste)
-  CurvaROC
+  CurvaROC 
 }
 
-avalia(treino_rf, nome_modelo="Random Forest")
+avalia(treino_random_forest, nome_modelo="Random Forest")
+
+previsto <- predict(treino_random_forest, type = "response", newdata = teste[,-24])
+
+nrow(teste)
+
+
+cutoff_churn <- factor(ifelse(previsto >=0.50, "Yes", "No"))
+ROC_glm <- roc(response = teste$Churn, predictor = as.numeric(previsto))
+plot(ROC_glm,      legacy.axes = TRUE, print.auc.y = 1.0, print.auc = TRUE)
+#conf_final <- confusionMatrix(cutoff_churn, churn_real, positive = "Yes")
 

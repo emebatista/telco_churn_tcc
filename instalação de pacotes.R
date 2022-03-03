@@ -1,5 +1,9 @@
 # Instalação e Carregamento dos Pacotes e funções de apoio
-GITHUB_PAT=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
+#GITHUB_PAT=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
+usethis::use_git_config(user.name = "Emerson D Batista", # Seu nome
+                        user.email = "emebatista@hotmail.com") # Seu email
+
+
 
 pacotes <- c("usethis","MASS","car","cowplot",
              "pROC","ggcorrplot","rgl",
@@ -40,8 +44,8 @@ theme2 <- theme_bw()+
 
 perform_fn <- function(cutoff) 
 {
-  predicted_churn <- factor(ifelse(pred >= cutoff, "Yes", "No"))
-  conf <- confusionMatrix(predicted_churn, actual_churn, positive = "Yes")
+  predicted_churn <- factor(ifelse(previsto >= cutoff, "Yes", "No"))
+  conf <- confusionMatrix(predicted_churn, churn_real, positive = "Yes")
   accuray <- conf$overall[1]
   sensitivity <- conf$byClass[1]
   specificity <- conf$byClass[2]
@@ -51,9 +55,6 @@ perform_fn <- function(cutoff)
 }
 
 
-create_github_token()
 
-usethis::use_git_config(user.name = "Emerson D Batista", # Seu nome
-                        user.email = "emebatista@hotmail.com") # Seu email
 
 # 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
