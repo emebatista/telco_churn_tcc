@@ -52,7 +52,10 @@ telco_dummy <- data.frame(sapply(telco_cat,function(x) data.frame(model.matrix(~
 # combina dataset de variáveis numéricas e categóricas dummy
 telco_final <- cbind(telco_int,telco_dummy)
 
+############################################################################
 # divide entre treino e teste
+############################################################################
+set.seed(0)
 indices = sample.split(telco_final$Churn, SplitRatio = 0.8)
 treino = telco_final[indices,]
 teste = telco_final[!(indices),]
@@ -60,10 +63,12 @@ teste = telco_final[!(indices),]
 ########################## FIM DA PREPARACAO DOS DADOS ##################################
 # Para GLM vamos rodar primeiro o Churn em função de todas as variáveis
 # na base de treino
+############################################################
 
 modelo_glm = glm(Churn ~ ., data = treino, family = "binomial")
 #final_model_glm <- step(object = modelo_glm,
 #                       k = qchisq(p = 0.05, df = 1, lower.tail = FALSE))
+# o modelo abaixo é o resultado do stepwise
 
 final_model_glm <- glm(formula = Churn ~ tenure + MonthlyCharges + SeniorCitizen + 
       PhoneService + MultipleLines + InternetService.xFiber.optic + 
@@ -73,21 +78,25 @@ final_model_glm <- glm(formula = Churn ~ tenure + MonthlyCharges + SeniorCitizen
       tenure_bin.x3.4.anos + tenure_bin.x4.5.anos + tenure_bin.x5.6.anos, 
     family = "binomial", data = treino)
 
+# temos acuracia de 81.08 para cutoff de 0.5
 confusionMatrix(table(predict(final_model_glm, type = "response") >= 0.5,
                       treino$Churn == 1)[2:1, 2:1])
 
+# temos acuracia de 78.47 para cutoff de 0.7
 confusionMatrix(table(predict(final_model_glm, type = "response") >= 0.7,
                       treino$Churn == 1)[2:1, 2:1])
 
+# temos acuracia de 76.98 para cutoff de 0.3
 confusionMatrix(table(predict(final_model_glm, type = "response") >= 0.3,
                       treino$Churn == 1)[2:1, 2:1])
 
-
 #summary(final_model_glm)
+# o Loglik é de -2302.189 com 20 graus de liberdade
 logLik(final_model_glm)
+
 #vif(final_model_glm)
 #anova(final_model_glm, test="Chisq")
-#summary(final_model_glm)
+summary(final_model_glm)
 
 # comparando os LL de antes e depois do stepwise
 #lrtest(modelo_glm, final_model_glm)
@@ -98,6 +107,13 @@ logLik(final_model_glm)
 #função prediction do pacote ROCR
 predicoes_glm <- prediction(predictions = final_model_glm$fitted.values, 
                         labels = treino$Churn) 
+
+#DTPredx <- predict(final_model_glm,type = "class", newdata = treino[,-24])
+
+
+MAPE(y_pred = as.numeric(DTPred), y_true = as.numeric(treino$Churn) )
+
+
 #a função prediction, do pacote ROCR, cria um objeto com os dados necessários
 #para a futura plotagem da curva ROC.
 
@@ -128,7 +144,7 @@ ggplotly(
                  size = 0.2) +
     labs(x = "Especificidade",
          y = "Sensitividade",
-         title = paste("Área abaixo da curva:",
+         title = paste("Ýrea abaixo da curva:",
                        round(ROC_glm$auc, 3),
                        "|",
                        "Coeficiente de Gini",
@@ -146,6 +162,7 @@ treino$prob <- previsto
 churn_previsto <- factor(ifelse(previsto >= 0.50, "Yes", "No"))
 churn_real <- factor(ifelse(treino$Churn==1,"Yes","No"))
 table(churn_real,churn_previsto)
+
 ###
 cutoff_churn <- factor(ifelse(previsto >=0.50, "Yes", "No"))
 conf_final <- confusionMatrix(cutoff_churn, churn_real, positive = "Yes")
@@ -155,7 +172,10 @@ specificity <- conf_final$byClass[2]
 
 options(repr.plot.width =8, repr.plot.height =6)
 
+# vai de 0.01 até 0.80 o teste de variação dos cutoff 
+# este array vai ser o eixo dos cutoffs (x)
 s = seq(0.01,0.80,length=100)
+
 OUT = matrix(0,100,3)
 
 for(i in 1:100)
@@ -170,15 +190,15 @@ axis(2,seq(0,1,length=5),seq(0,1,length=5),cex.lab=1.5)
 lines(s,OUT[,2],col="darkgreen",lwd=2)
 lines(s,OUT[,3],col=4,lwd=2)
 box()
-legend("bottom",col=c(2,"darkgreen",4,"darkred"),text.font =0.5,inset = 0.02,
+legend("bottom",col=c(2,"darkgreen",4,"darkred"),text.font =0.5,inset = 0.05,
        box.lty=0,cex = 0.8, 
-       lwd=c(1,2,2,2),c("Sens","Espec.","Acurácia"))
+       lwd=c(1,1,1,2),c("Sensitividade","Especificidade","Acurácia"))
 abline(v = 0.29, col="red", lwd=1, lty=2)
 axis(1, at = seq(0.1, 1, by = 0.1))
 
 
 ########################### FAZENDO O TESTE COM O DATASET TESTE ##
-set.seed(123)
+set.seed(0)
 
 options(repr.plot.width = 10, repr.plot.height = 8)
 
@@ -195,7 +215,7 @@ ggplotly(
                  size = 0.2) +
     labs(x = "Especificidade",
          y = "Sensitividade",
-         title = paste("Área abaixo da curva:",
+         title = paste("Ýrea abaixo da curva:",
                        round(ROC_glm$auc, 3),
                        "|",
                        "Coeficiente de Gini",
@@ -206,15 +226,18 @@ ggplotly(
 ###############################################################
 # gráfico triplo da base de teste 
 ###############################################################
-previsto <-
-  predict(final_model_glm, type = "response", newdata = teste[, -24])
+previsto <-predict(final_model_glm, type = "response", newdata = teste[, -24])
 cutoff_churn <- factor(ifelse(previsto >= 0.50, "Yes", "No"))
 churn_previsto <- factor(ifelse(previsto >= 0.50, "Yes", "No"))
 churn_real <- factor(ifelse(teste$Churn == 1, "Yes", "No"))
+confusionMatrix(cutoff_churn, churn_real, positive = "Yes")
+
 # table(churn_real,churn_previsto)
 for(i in 1:100)
 {
-  OUT[i,] = perform_fn(s[i])
+  #print(s[i])
+  #enviado o cutoff como parametro, retornam 3 (sensitividade, especificidade, acurácia)
+  OUT[i,] = perform_fn(s[i]) 
 } 
 
 plot(s, OUT[,1],xlab="Cutoff",
@@ -229,10 +252,13 @@ lines(s,OUT[,3],col=4,lwd=2)
 box()
 legend("bottom",col=c(2,"darkgreen",4,"darkred"),text.font =0.5,inset = 0.02,
        box.lty=0,cex = 0.8, 
-       lwd=c(2,2,2,2),c("Sens","Espec.","Acurácia"))
-abline(v = 0.32, col="red", lwd=1, lty=2)
+       lwd=c(2,2,2,2),c("Sensitividade","Especificidade","Acurácia"))
+abline(v = 0.29, col="red", lwd=1, lty=2)
 axis(1, at = seq(0.1, 1, by = 0.1))
 
 
 confusionMatrix(cutoff_churn, churn_real, positive = "Yes")
+
+
+
 
