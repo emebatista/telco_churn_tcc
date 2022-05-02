@@ -40,9 +40,33 @@ rf.roc  <- roc(response = teste$Churn, predictor = as.numeric(rf.pred))
 rf.gini <- round((rf.roc$auc[1] - 0.5) / 0.5, 3)
 
 #Plotagem das curvas ROC
-plot(glm.roc,legacy.axes = TRUE, print.auc.y = 1.0, print.auc = TRUE)
-plot(Dtree.roc, col = "blue", add = TRUE, print.auc.y = 0.65, print.auc = TRUE)
-plot(rf.roc,    col = "red" , add = TRUE, print.auc.y = 0.85, print.auc = TRUE)
+plot(glm.roc,legacy.axes = TRUE         , print.auc.y = 1.00, print.auc.x = 1.20, print.auc = TRUE)
+plot(rf.roc,    col = "red" , add = TRUE, print.auc.y = 0.80, print.auc.x = 0.20 ,print.auc = TRUE)
+plot(Dtree.roc, col = "blue", add = TRUE, print.auc.y = 0.60, print.auc = TRUE)
 legend("bottom", c("Random Forest", "Decision Tree", "GLM"),
        lty = c(1,1), lwd = c(1, 2), col = c("red", "blue", "black"), cex = 0.55)
+
+## glm ## 
+#acurácia 0.7967
+#mape 0.8035
+#auc 0.8452
+#rmse 1.0703
+#gini 0.69
+
+## Dtree
+# acurácia 0.7967
+# mape 0.1233
+# auc 0.6697
+# rmse 0.4516
+# gini 0.3390
+
+## Random Forrest 
+# acurácia 0.7960
+# mape 0.1350
+# auc 0.6956
+# rmse 0.4516
+# gini 0.3910
+
+
+
 
