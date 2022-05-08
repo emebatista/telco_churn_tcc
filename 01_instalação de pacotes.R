@@ -56,3 +56,4 @@ if(sum(as.numeric(!pacotes %in% installed.packages())) != 0){
 
 rm(pacotes)
 github_pat()
+ 
