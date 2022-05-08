@@ -1,28 +1,39 @@
-#carrega o CSV
+#### ANÁLISE EXPLORATÓRIA ####
+############################## 
+
+# Carregar o CSV
+
 telco <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
+
 # se o campo SeniorCitizen for 0, fica YES senao fica NO
+
 telco$SeniorCitizen <- as.factor(ifelse(telco$SeniorCitizen==1, 'Yes', 'No'))
 
 # trata dados, substituindo alguns conteúdos 
+
 telco <- data.frame(lapply(telco, function(x) {
   gsub("No internet service", "No", x)}))
 
 telco <- data.frame(lapply(telco, function(x) {
   gsub("No phone service", "No", x)}))
 
-#converte campos para numéricos
+# converter campos para numéricos
+
 num_columns <- c("tenure", "MonthlyCharges", "TotalCharges")
 telco[num_columns] <- sapply(telco[num_columns], as.numeric)
 
 # padroniza conteúdo de campos numéricos
+
 telco_int <- telco[,c("tenure", "MonthlyCharges", "TotalCharges")]
 telco_int <- data.frame(scale(telco_int))
 
 #cria uma coluna nova tenure_bin como cópia de tenure
+
 telco <- mutate(telco, tenure_bin = tenure)
 
 # cria as faixas de tempo de permanência como cliente
-telco$tenure_bin[telco$tenure_bin >=0 & telco$tenure_bin <= 12] <- '0-1 anos'
+
+telco$tenure_bin[telco$tenure_bin >= 0 & telco$tenure_bin <= 12] <- '0-1 anos'
 telco$tenure_bin[telco$tenure_bin > 12 & telco$tenure_bin <= 24] <- '1-2 anos'
 telco$tenure_bin[telco$tenure_bin > 24 & telco$tenure_bin <= 36] <- '2-3 anos'
 telco$tenure_bin[telco$tenure_bin > 36 & telco$tenure_bin <= 48] <- '3-4 anos'
@@ -30,6 +41,7 @@ telco$tenure_bin[telco$tenure_bin > 48 & telco$tenure_bin <= 60] <- '4-5 anos'
 telco$tenure_bin[telco$tenure_bin > 60 & telco$tenure_bin <= 72] <- '5-6 anos'
 
 #converte o texto em variável categórica
+
 telco$tenure_bin <- as.factor(telco$tenure_bin)
 
 categoricas = c(2,3,4,5,7,8,9,10,11,12,13,14,15,16,17,18,21,22)
@@ -41,6 +53,7 @@ for(i in categoricas) {
 summary(telco)
 
 # gráfico do churn
+
 telco %>% 
   group_by(Churn) %>% 
   summarise(Count = n())%>% 
@@ -60,6 +73,7 @@ theme2 <- theme_bw()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),legend.position="none")
 
 #gráfico de churn com vários agrupamentos
+
 options(repr.plot.width = 12, repr.plot.height = 8)
 plot_grid(ggplot(telco, aes(x=gender,fill=Churn))+ geom_bar()+ theme1, 
           ggplot(telco, aes(x=SeniorCitizen,fill=Churn))+ geom_bar(position = 'fill')+theme1,
@@ -88,6 +102,7 @@ plot_grid(ggplot(telco, aes(x=InternetService,fill=Churn))+ geom_bar(position = 
           align = "h")
 
 # gráficos 
+
 plot_grid(ggplot(telco, aes(x=StreamingMovies,fill=Churn))+ 
             geom_bar(position = 'fill')+ theme1+
             scale_x_discrete(labels = function(x) str_wrap(x, width = 10)), 
@@ -102,17 +117,16 @@ plot_grid(ggplot(telco, aes(x=StreamingMovies,fill=Churn))+
             scale_x_discrete(labels = function(x) str_wrap(x, width = 10)),
           align = "h")
 
-#Tenure: The median tenure for customers who have left is around 10 months.
+#Tenure: A média de tempo no plano para clientes que saíram é em torno de 10 meses. 
 
-
-options(repr.plot.width =6, repr.plot.height = 2)
+options(repr.plot.width = 6, repr.plot.height = 2)
 
 ggplot(telco, aes(y= tenure, x = "", fill = Churn)) + 
   geom_boxplot()+ 
   theme_bw()+
   xlab(" ")
 
-#define parametros do box-cox 
+# define parametros do box-cox 
 options(repr.plot.width =6, repr.plot.height = 2)
 
 #box-plot de tenure
@@ -170,7 +184,7 @@ telco_cor <- round(cor(telco[,c("tenure", "MonthlyCharges", "TotalCharges")]), 1
 
 ggcorrplot(telco_cor,  title = "Correlação")+theme(plot.title = element_text(hjust = 0.5))
 
-options(repr.plot.width =4, repr.plot.height = 4)
+options(repr.plot.width = 4, repr.plot.height = 4)
 
 boxplot(telco$tenure)$out
 
@@ -188,5 +202,4 @@ telco %>%
   xlab("Churn") + 
   ylab("Percent")+
   ggtitle("Churn Percent")
-
 

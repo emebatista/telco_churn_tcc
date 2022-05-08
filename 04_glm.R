@@ -91,7 +91,6 @@ ggplotly(
 
 
 ## COMANDOS ABAIXO PARA CONSTRUIR O GRAFICO COM ACURACIA, ESPECIFICIDADE E SENSIBILIDADE ######################################################################################
-
 previsto <- predict(final_model_glm, type = "response", newdata = treino[,-24])
 treino$prob <- previsto
 
@@ -113,10 +112,10 @@ perform_fn <- function(cutoff)
 {
   predicted_churn <- factor(ifelse(previsto >= cutoff, "Yes", "No"))
   conf <- confusionMatrix(predicted_churn, churn_real, positive = "Yes")
-  accuray <- conf$overall[1]
+  accuracy <- conf$overall[1]
   sensitivity <- conf$byClass[1]
   specificity <- conf$byClass[2]
-  out <- t(as.matrix(c(sensitivity, specificity, accuray))) 
+  out <- t(as.matrix(c(sensitivity, specificity, accuracy))) 
   colnames(out) <- c("sensitividade", "especificidade", "acuracia")
   return(out)
 }
@@ -145,12 +144,10 @@ legend("bottom",col=c(2,"darkgreen",4,"darkred"),text.font =0.5,inset = 0.05,
 abline(v = 0.29, col="red", lwd=1, lty=2)
 axis(1, at = seq(0.1, 1, by = 0.1))
 
-
-########################### FAZENDO O TESTE COM O DATASET TESTE ##
-set.seed(123)
-
+#######################################################################
+########################### FAZENDO O TESTE COM O DATASET TESTE #######
 options(repr.plot.width = 10, repr.plot.height = 8)
-
+set.seed(0)
 # tira a coluna 24 porque ela é o churn
 previsto <- predict(final_model_glm, type = "response", newdata = teste[,-24])
 ROC_glm <- roc(response = teste$Churn, predictor = as.numeric(previsto))

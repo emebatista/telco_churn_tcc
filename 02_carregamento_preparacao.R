@@ -1,11 +1,11 @@
 #################################### INICIO DA PREPARACAO DOS DADOS ##################################
-# carrega o CSV
+# carrega o CSV da base de dados
 telco <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 
-# retira o que tiver missing values
+# retira os missing values
 telco <- telco[complete.cases(telco),] 
 
-# se o campo SeniorCitizen for 0, fica YES senao fica NO
+# se o campo SeniorCitizen for 0, fica YeS senao fica No
 telco$SeniorCitizen <- as.factor(ifelse(telco$SeniorCitizen==1, 'Yes', 'No'))
 
 # trata dados, substituindo alguns conteúdos 
@@ -43,7 +43,7 @@ for(i in categoricas) {
   telco[,as.numeric(i)] <- as.factor(telco[,as.numeric(i)])
 }
 
-# remove quantitativas, pois faremos a dumização delas
+# remove quantitativas, pois faremos a dumização das demais
 telco_cat <- telco[,-c(1,6,19,20)]
 
 # cria variáveis dummy
@@ -56,7 +56,6 @@ telco_final <- cbind(telco_int,telco_dummy)
 # divide entre treino e teste
 ############################################################################
 set.seed(0)
-
 telco_final$Churn <- as.factor(telco_final$Churn)
 
 indices = sample.split(telco_final$Churn, SplitRatio = 0.8)
