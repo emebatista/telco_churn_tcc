@@ -1,5 +1,5 @@
 # Instalação e Carregamento dos Pacotes e funções de apoio
-#GITHUB_PAT=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
+
 usethis::use_git_config(user.name = "Emerson D Batista", # Seu nome
                         user.email = "emebatista@hotmail.com") # Seu email
 
@@ -41,7 +41,6 @@ pacotes <- c("usethis",
              "lmeInfo",
              "jtools",
              "rpart",
-             "rnn",
              "party")
 
 
@@ -56,3 +55,4 @@ if(sum(as.numeric(!pacotes %in% installed.packages())) != 0){
 }
 
 rm(pacotes)
+github_pat()
