@@ -58,9 +58,9 @@ legend("bottom", c("Random Forest", "Decision Tree", "GLM"),
 
 ## glm ## 
 #acurácia 0.7967
-#mape 0.7487
+#mape 0.1901
 #auc 0.8452
-#rmse 1.0301
+#rmse 0,4754
 ##gini 0.69
 
 ## dtree
