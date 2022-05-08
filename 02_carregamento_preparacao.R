@@ -1,4 +1,4 @@
-##################################### INICIO DA PREPARACAO DOS DADOS ##################################
+#################################### INICIO DA PREPARACAO DOS DADOS ##################################
 # carrega o CSV
 telco <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
 
@@ -27,7 +27,7 @@ telco_int <- data.frame(scale(telco_int))
 telco <- mutate(telco, tenure_bin = tenure)
 
 # cria as faixas de tempo de permanência como cliente
-telco$tenure_bin[telco$tenure_bin >=0 & telco$tenure_bin <= 12] <- '0-1 anos'
+telco$tenure_bin[telco$tenure_bin >= 0 & telco$tenure_bin <= 12] <- '0-1 anos'
 telco$tenure_bin[telco$tenure_bin > 12 & telco$tenure_bin <= 24] <- '1-2 anos'
 telco$tenure_bin[telco$tenure_bin > 24 & telco$tenure_bin <= 36] <- '2-3 anos'
 telco$tenure_bin[telco$tenure_bin > 36 & telco$tenure_bin <= 48] <- '3-4 anos'
@@ -70,3 +70,4 @@ rm(telco_int)
 rm(telco_dummy)
 rm(telco_cat)
 rm(telco)
+

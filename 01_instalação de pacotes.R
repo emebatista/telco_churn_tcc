@@ -40,6 +40,8 @@ pacotes <- c("usethis",
              "msm",
              "lmeInfo",
              "jtools",
+             "rpart",
+             "rnn",
              "party")
 
 
