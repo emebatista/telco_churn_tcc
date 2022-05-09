@@ -4,18 +4,23 @@ set.seed(0)
 # Modelo GLM já foi treinado. Rodaremos o predict 
 # modelo_glm
 
+# para cutoff de 32%
 glm_pred <- predict(final_model_glm, type = "response", newdata = teste[,-24])
-glm_acc  <- confusionMatrix( factor(ifelse(teste$Churn == 1 , "Yes", "No")), 
-                             factor(ifelse(glm_pred >= 0.32 , "Yes", "No")), 
-                             positive = "Yes")$overall[1]
-glm_acc
-view_glm_pred <- ifelse(glm_pred >= 0.32 , 1, 0)
-view_churn    <- as.numeric(teste$Churn)
 
+glm_mc <- confusionMatrix( factor(ifelse(teste$Churn == 1 , "Yes", "No")), 
+                           factor(ifelse(glm_pred >= 0.32 , "Yes", "No")), 
+                           positive = "Yes", mode = "everything" )
+glm_acc  <- glm_mc$overall[1]
+glm_acc_50  <- confusionMatrix( factor(ifelse(teste$Churn == 1 , "Yes", "No")), 
+                             factor(ifelse(glm_pred >= 0.50 , "Yes", "No")), 
+                             positive = "Yes", mode = "everything" )$overall[1]
+
+glm_acc
 glm_mape <- MAPE( y_pred = ifelse(glm_pred >= 0.32 ,  2, 1),
                   y_true = ifelse(teste$Churn == '1', 2, 1)) 
 glm_rmse <- Metrics::rmse(ifelse(teste$Churn == '1', 2, 1), ifelse(glm_pred >= 0.32 , 2, 1))
 glm_roc  <- roc(response = teste$Churn, predictor = as.numeric(ifelse(glm_pred >= 0.32 , 1, 0)))
+
 glm_gini <- round((glm_roc$auc[1] - 0.5) / 0.5, 3)
 
 #Treinando Decision Tree
@@ -25,7 +30,7 @@ dtree <- rpart(Churn ~., data = treino, method = "class")
 dtree_pred <- predict(dtree, type = "class", newdata = teste[,-24])
 dtree_acc  <- confusionMatrix( factor(ifelse(teste$Churn == 1 , "Yes", "No")), 
                                factor(ifelse(dtree_pred == 1 , "Yes", "No")) , 
-                               positive = "Yes")$overall[1]
+                               positive = "Yes", mode = "everything")$overall[1]
 dtree_acc
 dtree_mape <- MAPE( y_pred = as.numeric(dtree_pred),
                     y_true = as.numeric(teste$Churn) )
@@ -41,7 +46,9 @@ rf_model <- randomForest(Churn ~ ., data = treino, proximity = FALSE,
                      ntree = 2000, mtry = 4, do.trace = FALSE)
 
 rf_pred <- predict(rf_model, newdata = teste[,-24])
-rf_acc  <- confusionMatrix( factor(ifelse(teste$Churn == 1 , "Yes", "No")), factor(ifelse(rf_pred == 1 , "Yes", "No")) , positive = "Yes")$overall[1]
+rf_acc  <- confusionMatrix( factor(ifelse(teste$Churn == 1 , "Yes", "No")), 
+                            factor(ifelse(rf_pred == 1 , "Yes", "No")) , 
+                            positive = "Yes", mode = "everything")$overall[1]
 rf_acc
 rf_mape <- MAPE( y_pred = as.numeric(rf_pred) , y_true = as.numeric(teste$Churn) )
 rf_rmse <- Metrics::rmse(as.numeric(teste$Churn), as.numeric(rf_pred) )
