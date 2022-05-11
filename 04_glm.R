@@ -4,9 +4,19 @@
 
 #antes de stepwise
 set.seed(0)
+
+glimpse(treino)
 modelo_glm = glm(Churn ~ ., data = treino, family = "binomial")
-#final_model_glm <- step(object = modelo_glm,
-#                       k = qchisq(p = 0.05, df = 1, lower.tail = FALSE))
+summary(modelo_glm)
+vif(modelo_glm)
+summary(treino)
+##export_summs(modelo_glm, final_model_glm)
+##final_model_glm <- step(object = modelo_glm,
+##                       k = qchisq(p = 0.05, df = 1, lower.tail = FALSE))
+final_model_glm <- stepAIC(modelo_glm, direction="both")
+logLik(final_model_glm)
+vif(final_model_glm)
+
 
 # o modelo abaixo é o resultado do stepwise
 final_model_glm <- glm(formula = Churn ~ tenure + MonthlyCharges + SeniorCitizen + 
@@ -17,12 +27,14 @@ final_model_glm <- glm(formula = Churn ~ tenure + MonthlyCharges + SeniorCitizen
       tenure_bin.x3.4.anos + tenure_bin.x4.5.anos + tenure_bin.x5.6.anos, 
     family = "binomial", data = treino)
 
+summary(final_model_glm)
+vif(final_model_glm)
 # temos acuracia de 81.08 para cutoff de 0.5
 confusionMatrix(table(predict(final_model_glm, type = "response") >= 0.5,
-                      treino$Churn == 1)[2:1, 2:1])
+                      treino$Churn == 1)[2:1, 2:1], mode = "everything")
 
 # temos acuracia de 78.47 para cutoff de 0.7
-confusionMatrix(table(predict(final_model_glm, type = "response") >= 0.7,
+confusionMatrix(table(predict(final_model_glm, mode = "response") >= 0.7,
                       treino$Churn == 1)[2:1, 2:1])
 
 # temos acuracia de 76.98 para cutoff de 0.3

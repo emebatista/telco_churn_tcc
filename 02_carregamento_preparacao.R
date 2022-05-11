@@ -56,12 +56,23 @@ telco_final <- cbind(telco_int,telco_dummy)
 # divide entre treino e teste
 ############################################################################
 set.seed(0)
+
 telco_final$Churn <- as.factor(telco_final$Churn)
+
+for(i in 1:29) { 
+  telco_final[,as.numeric(i)] <- as.factor(telco_final[,as.numeric(i)])
+}
+telco_final$tenure <- as.numeric(telco_final$tenure)
+telco_final$MonthlyCharges <- as.numeric(telco_final$MonthlyCharges)
+telco_final$TotalCharges <- as.numeric(telco_final$TotalCharges)
+telco_final$Churn <- as.factor(telco_final$Churn)
+
+
 
 indices = sample.split(telco_final$Churn, SplitRatio = 0.8)
 treino = telco_final[indices,]
 teste = telco_final[!(indices),]
-
+glimpse(treino)
 rm(categoricas)
 rm(i)
 rm(num_columns)
@@ -69,4 +80,5 @@ rm(telco_int)
 rm(telco_dummy)
 rm(telco_cat)
 rm(telco)
+
 

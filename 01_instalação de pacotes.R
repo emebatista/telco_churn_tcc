@@ -41,7 +41,8 @@ pacotes <- c("usethis",
              "lmeInfo",
              "jtools",
              "rpart",
-             "party")
+             "party",
+             "nortest")
 
 
 if(sum(as.numeric(!pacotes %in% installed.packages())) != 0){
@@ -55,5 +56,4 @@ if(sum(as.numeric(!pacotes %in% installed.packages())) != 0){
 }
 
 rm(pacotes)
-github_pat()
- 
+
